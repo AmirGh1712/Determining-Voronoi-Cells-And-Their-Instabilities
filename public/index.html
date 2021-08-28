@@ -1,0 +1,356 @@
+<html>
+    <head>
+        <!-- Bootstrap core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom styles for this template -->
+        <link href="css/cover.css" rel="stylesheet">
+
+        <script src="https://cdn.plot.ly/plotly-1.2.0.min.js"></script>
+    </head>
+    <body class="text-center">
+
+        <div class="cover-container d-flex h-100 p-3 mx-auto flex-column">
+          
+          <main role="main" class="inner cover">
+            <h1 class="cover-heading">Determining Voronoi Cells And Their Instabilities</h1>
+            <p class="lead">Given a discrete set of points in space, the Voronoi cell of each point is the region of space closer to it than to any other point.  These regions are convex polyhedra, and their combinatorics are determined by the relative positions of the neighboring points.  In many situations, small perturbations of the points do not change the number of vertices, edges, and faces of the Voronoi cells; we call such Voronoi cells <i>stable</i>.  In some cases, however, small perturbations do change the number of vertices, edges, and faces of adjacent Voronoi cells; we call these <i>unstable</i>.<br/><br/>
+              The code below assumes that a point is located at the origin (0,0,0) and takes as input a set of coordinates -- either of basis vectors, for lattices -- or else of all neighboring particles.  The code then computes the Voronoi cell and also indicates which vertices and edges are stable and which ones are not.<p class="lead">
+                <a download href="algorithm.py" class="btn btn-lg btn-secondary">Download the script</a>
+            </p>
+            <p class="lead">
+              <form action="/aa" method="POST">
+                
+                <div class="form-group row">
+                  
+                  <div class="col-sm-12">
+                <div class="form-group row">
+                  <label class="col-sm-2 col-form-label"></label>
+                  <label for="inputVector1" class="col-sm-3 col-form-label">Vector 1</label>
+                  <label for="inputVector2" class="col-sm-3 col-form-label">Vector 2</label>
+                  <label for="inputVector3" class="col-sm-3 col-form-label">Vector 3</label>
+
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-2 col-form-label">X:</label>
+                  <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputVector1X">
+                  </div>
+                  <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputVector2X">
+                  </div>
+                  <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputVector3X">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-2 col-form-label">Y:</label>
+                  <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputVector1Y">
+                  </div>
+                  <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputVector2Y">
+                  </div>
+                  <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputVector3Y">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-2 col-form-label">Z:</label>
+                  <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputVector1Z">
+                  </div>
+                  <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputVector2Z">
+                  </div>
+                  <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputVector3Z">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-sm-12">
+                    <label class="form-check-label" style="margin-left: 20px;">
+                      <input id="moving_cb" class="form-check-input" type="checkbox"> Perturbations
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-sm-12">
+                    <button id="calculate_btn" type="button" class="btn btn-primary">Calculate By Vectors</button>
+                  </div>
+                </div>
+                </div>
+              </div>
+                <div class="form-group row">
+                <div class="col-sm-12" id="points_container">
+                <!-- <div class="form-group row">
+                  <label class="col-sm-2 col-form-label">Points:</label>
+                  <div class="col-sm-9">
+                    <textarea class="form-control" id="points" placeholder="p1.x,p1.y,p1.z p2.x,p2.y,p2.z p3.x,p3.y,p3.z ..."></textarea>
+                  </div>
+                </div> -->
+                <div class="form-group row">
+                  <label class="col-sm-1 col-form-label">Points:</label>
+                  <label class="col-sm-1 col-form-label">X:</label>
+                  <div class="col-sm-2">
+                    <input type="number" class="form-control" name="pointsX">
+                  </div>
+                  <label class="col-sm-1 col-form-label">Y:</label>
+                  <div class="col-sm-2">
+                    <input type="number" class="form-control" name="pointsY">
+                  </div>
+                  <label class="col-sm-1 col-form-label">Z:</label>
+                  <div class="col-sm-2">
+                    <input type="number" class="form-control" name="pointsZ">
+                  </div>
+                  <div class="col-sm-1">
+                  </div>
+                </div>
+              </div>
+              </div>
+                
+              <div class="form-group row">
+                <div class="col-sm-12">
+                  <button id="plus_btn" type="button" class="btn btn-primary">+</button>
+                  <button id="calculate_by_points_btn" type="button" class="btn btn-primary">Calculate By Points</button>
+                </div>
+              </div>
+              <div  class="form-group row">
+                  
+                <div class="col-sm-12">
+                  <p class="lead">
+                    <div id="tester" style="width:600px;height:250px;"></div>
+                  </p>
+                </div>
+              </div>
+              <div id='download_div' class="form-group row" style="display: none;">
+                  
+                <div class="col-sm-12">
+                  <button id="download_btn" type="button" class="btn btn-primary">Download The Cell</button>
+                </div>
+              </div>
+              </form>
+            </p>
+            
+          </main>
+    
+          <footer class="mastfoot mt-auto">
+            <div class="inner">
+              <p></p>
+            </div>
+          </footer>
+        </div>
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="js/jquery-3.2.1.slim.min.js"></script>
+        <script src="js/popper.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+
+        <script>
+            var file_content = '' 
+            /** Create a file an download it to the user.
+             * @param filename the name of the file.
+             * @param text the file content.
+             */
+            function download(filename, text) {
+              var element = document.createElement('a');
+              element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+              element.setAttribute('download', filename);
+
+              element.style.display = 'none';
+              document.body.appendChild(element);
+
+              element.click();
+
+              document.body.removeChild(element);
+            }
+
+            /** Presenting thr voronoi cell in the ui.
+             * @param obj the voronoi cell.
+             */
+            function showCell(obj) {
+              
+              file_content = obj
+              obj = JSON.parse(file_content[1])
+              document.getElementById('download_div').style.display = 'block'
+              traces = []
+
+              // Create the legends in the plot.
+              var colors = ['', 'white', 'red','purple', 'blue', 'green', 'yellow', 'orange', 'black']
+              var legends = []
+              for (const  i in colors) {
+                legends.push(false)
+              }
+              
+              // Add the points and color them by their instability.
+              points = {}
+              for (const i in obj.points) {
+                if (points[obj.points[i][1].toString()] == undefined)
+                points[obj.points[i][1].toString()] = []
+                points[obj.points[i][1].toString()].push(obj.points[i][0])
+              } 
+              for (const planes in points) {
+                xs = []
+                ys = []
+                zs = []
+                for (const i in points[planes]) {
+                  xs.push(points[planes][i][0])
+                  ys.push(points[planes][i][1])
+                  zs.push(points[planes][i][2])
+                }
+                var trace =  {
+                  type: 'scatter3d',
+                  x: xs,
+                  y: ys,
+                  z: zs,
+                  legendgroup: planes.toString(),
+                  name: planes.toString(),
+                  mode: 'markers',
+                  marker: {
+                      color: colors[planes],
+                      size: 6,
+                      symbol: 'circle',
+                      opacity: 0.8}
+                }
+                traces.push(trace)
+              }
+
+              // Add the lines and color them by their instability.
+              for (var i in obj.segments) {
+                var p1 = obj.segments[i][0][0]
+                var p2 = obj.segments[i][0][1]
+                var planes = obj.segments[i][1]
+                var trace =  {
+                    type: 'scatter3d',
+                    mode: 'lines',
+                    legendgroup: planes.toString(),
+                    name: planes.toString(),
+                    x: [p1[0], p2[0]],
+                    y: [p1[1], p2[1]],
+                    z: [p1[2], p2[2]],
+                    opacity: 1,
+                    line: {
+                        width: 6,
+                        color: colors[planes - 1],
+                        reversescale: false
+                    }
+                }
+                if (legends[planes-1]) {
+                  trace['showlegend'] = false
+                }
+                else {
+                  legends[planes-1] = true
+                }
+                traces.push(trace)
+              }
+              
+              // Plot all.
+              var layout = {
+                  margin: {
+                    l: 0,
+                    r: 0,
+                    b: 0,
+                    t: 0
+                  },
+                  paper_bgcolor: "#333",
+                  font: {
+                    color: "white"
+                  }
+              }
+              Plotly.newPlot('tester', traces, layout)
+            }
+            /** Send a http request to the server to claculate a voronoi cell out of the vector parameters.
+             * @param paramas the parameters.
+             */
+            function requestVoronoiCell(params) {
+              var xhttp = new XMLHttpRequest()
+              xhttp.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                    //console.log(xhttp.responseText)
+                    showCell(JSON.parse(xhttp.responseText))
+                  }
+              };
+              xhttp.open("POST", "/voronoi_cell", true)
+              xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+              xhttp.send(JSON.stringify(params))
+            }
+            /** Send a http request to the server to claculate a voronoi cell out of the points parameters.
+             * @param paramas the parameters.
+             */
+            function requestVoronoiCellByPoints(params) {
+              var xhttp = new XMLHttpRequest()
+              xhttp.onreadystatechange = function() {
+                  if (this.readyState == 4 && this.status == 200) {
+                    showCell(JSON.parse(xhttp.responseText))
+                  }
+              };
+              xhttp.open("POST", "/voronoi_cell_by_points", true)
+              xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+              xhttp.send(JSON.stringify(params))
+            }
+            /** Calculating and presenting a voronoi cell from 3 vectors.
+             */
+            function calculateVoronoiCell() {
+                var params = {
+                  x1: document.getElementById('inputVector1X').value,
+                  x2: document.getElementById('inputVector2X').value,
+                  x3: document.getElementById('inputVector3X').value,
+                  y1: document.getElementById('inputVector1Y').value,
+                  y2: document.getElementById('inputVector2Y').value,
+                  y3: document.getElementById('inputVector3Y').value,
+                  z1: document.getElementById('inputVector1Z').value,
+                  z2: document.getElementById('inputVector2Z').value,
+                  z3: document.getElementById('inputVector3Z').value,
+                  m: document.getElementById('moving_cb').checked 
+                }
+                requestVoronoiCell(params)
+            }
+            /** Calculating and presenting a voronoi cell from list of neighbors.
+             */
+            function calculateByPointsVoronoiCell() {
+              str =''
+              for (var i = 0; i < document.getElementsByName('pointsX').length; i++) {
+                x = document.getElementsByName('pointsX')[i].value.toString()
+                y = document.getElementsByName('pointsY')[i].value.toString()
+                z = document.getElementsByName('pointsZ')[i].value.toString()
+                str += x + ',' + y + ',' + z + ' '
+              }
+              var params = {
+                points: str.slice(0, -1)
+              }
+              requestVoronoiCellByPoints(params)
+            }
+            /** Download the current presented cell.
+             */
+            function downloadCell() {
+              download('voronoi_cell.txt', file_content)
+            }
+            var rowID = 0
+            /** Adding a new input for point.
+             */
+            function addNewPoint() {
+              container = document.getElementById('points_container')
+              //container.innerHTML+= "<div id=\"row" + rowID.toString() + "\" class=\"form-group row\"><label class=\"col-sm-1 col-form-label\"></label><label class=\"col-sm-1 col-form-label\">X:</label><div class=\"col-sm-2\"><input type=\"number\" class=\"form-control\" name=\"pointsX\"></div><label class=\"col-sm-1 col-form-label\">Y:</label><div class=\"col-sm-2\"><input type=\"number\" class=\"form-control\" name=\"pointsY\"></div><label class=\"col-sm-1 col-form-label\">Z:</label><div class=\"col-sm-2\"><input type=\"number\" class=\"form-control\" name=\"pointsZ\"> </div><div class=\"col-sm-1\"><button id=\"plus_btn\" type=\"button\" onclick=\"removeRow('row" + rowID.toString() + "')\" class=\"btn btn-primary\">-</button></div> </div>"
+              d = document.createElement("div")
+              d.id = 'row' + rowID.toString()
+              d.className = "form-group row"
+              d.innerHTML = "<label class=\"col-sm-1 col-form-label\"></label><label class=\"col-sm-1 col-form-label\">X:</label><div class=\"col-sm-2\"><input type=\"number\" class=\"form-control\" name=\"pointsX\"></div><label class=\"col-sm-1 col-form-label\">Y:</label><div class=\"col-sm-2\"><input type=\"number\" class=\"form-control\" name=\"pointsY\"></div><label class=\"col-sm-1 col-form-label\">Z:</label><div class=\"col-sm-2\"><input type=\"number\" class=\"form-control\" name=\"pointsZ\"> </div><div class=\"col-sm-1\"><button id=\"plus_btn\" type=\"button\" onclick=\"removeRow('row" + rowID.toString() + "')\" class=\"btn btn-primary\">-</button></div>"
+              container.appendChild(d)
+              rowID++
+            }
+            /** Removing a new input for point.
+             */
+            function removeRow(row) {
+              document.getElementById(row).remove()
+            }
+
+            document.getElementById('calculate_btn').onclick = calculateVoronoiCell
+            document.getElementById('calculate_by_points_btn').onclick = calculateByPointsVoronoiCell
+            document.getElementById('download_btn').onclick = downloadCell
+            document.getElementById('plus_btn').onclick = addNewPoint
+
+            
+        </script>
+    </body>
+</html>
